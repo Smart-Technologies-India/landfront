@@ -4,10 +4,11 @@ enum SideBarTabs {
     Dashborad,
     Services,
     Files,
-    Marriage,
-    Religious,
-    Roadshow,
-    Generic,
+    NA,
+    Sale,
+    Gift,
+    SD,
+    Partication,
     Search,
     EditProfile
 }

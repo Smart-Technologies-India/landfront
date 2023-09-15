@@ -14,8 +14,9 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
     return json({ user: cookie });
 };
 
-const Na: React.FC = (): JSX.Element => {
+const Gift: React.FC = (): JSX.Element => {
     const user = useLoaderData().user;
+
     const nameRef = useRef<HTMLInputElement>(null);
     const mobileRef = useRef<HTMLInputElement>(null);
     const addressRef = useRef<HTMLTextAreaElement>(null);
@@ -25,6 +26,7 @@ const Na: React.FC = (): JSX.Element => {
 
     const scstRef: string[] = ["NONE", "GENERAL", "ST", "SC", "OTHER"];
     const [scst, setScst] = useState<string>("None");
+
 
     const govt_employeeRef = useRef<HTMLInputElement>(null);
 
@@ -52,18 +54,18 @@ const Na: React.FC = (): JSX.Element => {
 
     const road_accessRef = useRef<HTMLTextAreaElement>(null);
 
-    const road_adjoinRef = useRef<HTMLTextAreaElement>(null);
+    const land_acqRef = useRef<HTMLTextAreaElement>(null);
 
-    const na_reasonRef = useRef<HTMLTextAreaElement>(null);
+    const gift_reasonRef = useRef<HTMLTextAreaElement>(null);
 
     const addition_landRef = useRef<HTMLTextAreaElement>(null);
 
     const past_appln_rejectRef = useRef<HTMLTextAreaElement>(null);
 
-    const typeOfNARef: string[] = ["NONE", "RESIDENTIAL", "COMMERCIAL", "INDUSTRIAL", "RESIDENTIALCUMCOMMERCIAL"];
-    const [typeOfNA, setTypeOfNA] = useState<string>("None");
+    const dnameRef = useRef<HTMLInputElement>(null);
+    const dmobileRef = useRef<HTMLInputElement>(null);
+    const daddressRef = useRef<HTMLTextAreaElement>(null);
 
-    const remarkRef = useRef<HTMLTextAreaElement>(null);
 
     const agri_evidence_urlRef = useRef<HTMLInputElement>(null);
     const [agrievidence, setAgrievidence] = useState<File>();
@@ -73,8 +75,7 @@ const Na: React.FC = (): JSX.Element => {
     const [landplan, setLandplan] = useState<File>();
     const nakel_url_1_14Ref = useRef<HTMLInputElement>(null);
     const [nakal114, setNakal114] = useState<File>();
-    const nakel_rr_14Ref = useRef<HTMLInputElement>(null);
-    const [nakalrr, setNakalrr] = useState<File>();
+
 
     const [isChecked, setIsChecked] = useState(false);
     const sigimgRef = useRef<HTMLInputElement>(null);
@@ -230,15 +231,12 @@ const Na: React.FC = (): JSX.Element => {
                 road_access: z
                     .string()
                     .optional(),
-                road_adjoin: z
+                land_acq: z
                     .string()
                     .optional(),
-                na_reason: z
+                gift_reason: z
                     .string()
                     .optional(),
-                land_purpose: z
-                    .string()
-                    .nonempty("Applicant Sc/St status is required."),
                 addition_land: z
                     .string()
                     .optional(),
@@ -248,6 +246,17 @@ const Na: React.FC = (): JSX.Element => {
                 iagree: z
                     .string()
                     .nonempty("Check the  agree box"),
+                name_donee: z
+                    .string()
+                    .optional(),
+                address_donee: z
+                    .string()
+                    .optional(),
+                mobile_donee: z
+                    .string()
+                    .optional(),
+
+
             })
             .strict();
 
@@ -269,13 +278,16 @@ const Na: React.FC = (): JSX.Element => {
             land_situate: land_situateRef!.current!.value,
             electric: electricRef!.current!.value,
             road_access: road_accessRef!.current!.value,
-            road_adjoin: road_adjoinRef!.current!.value,
-            na_reason: na_reasonRef!.current!.value,
-            land_purpose: typeOfNA,
+            land_acq: land_acqRef!.current!.value,
+            gift_reason: gift_reasonRef!.current!.value,
             addition_land: addition_landRef!.current!.value,
             past_appln_reject: past_appln_rejectRef!.current!.value,
             iagree: isChecked ? "YES" : "NO",
+            name_donee: dnameRef!.current!.value,
+            address_donee: daddressRef!.current!.value,
+            mobile_donee: dmobileRef!.current!.value,
         };
+
 
         const parsed = NaScheme.safeParse(naScheme);
 
@@ -284,7 +296,6 @@ const Na: React.FC = (): JSX.Element => {
             if (govtevidence == null || govtevidence == undefined) { toast.error("Select Government Evidence Document.", { theme: "light" }); }
             if (landplan == null || landplan == undefined) { toast.error("Select Land Plan Document.", { theme: "light" }); }
             if (nakal114 == null || nakal114 == undefined) { toast.error("Select Nakal 1-14 Document.", { theme: "light" }); }
-            if (nakalrr == null || nakalrr == undefined) { toast.error("Select RR Nakal Document.", { theme: "light" }); }
             if (sigimg == null || sigimg == undefined) { toast.error("Select Signature Image.", { theme: "light" }); }
 
 
@@ -292,23 +303,22 @@ const Na: React.FC = (): JSX.Element => {
             const govt_evidence_url = await UploadFile(govtevidence!);
             const land_site_plan_url = await UploadFile(landplan!);
             const nakel_url_1_14 = await UploadFile(nakal114!);
-            const nakel_rr_14 = await UploadFile(nakalrr!);
             const sign_url = await UploadFile(sigimg!);
 
 
 
-            if (agri_evidence_url.status && sign_url.status && govt_evidence_url.status && land_site_plan_url.status && nakel_url_1_14.status && nakel_rr_14.status) {
+            if (agri_evidence_url.status && sign_url.status && govt_evidence_url.status && land_site_plan_url.status && nakel_url_1_14.status) {
 
                 const data = await ApiCall({
                     query: `
-                    mutation createNa($createNaInput:CreateNaInput!){
-                        createNa(createNaInput:$createNaInput){
+                    mutation createGift($createGiftInput:CreateGiftInput!){
+                        createGift(createGiftInput:$createGiftInput){
                           id
                         }
                       }
                     `,
                     veriables: {
-                        createNaInput: {
+                        createGiftInput: {
                             userId: Number(user.id),
                             name: naScheme.name,
                             address: naScheme.address,
@@ -325,26 +335,27 @@ const Na: React.FC = (): JSX.Element => {
                             land_situate: naScheme.land_situate,
                             electric: naScheme.electric,
                             road_access: naScheme.road_access,
-                            road_adjoin: naScheme.road_adjoin,
-                            na_reason: naScheme.na_reason,
+                            land_acq: naScheme.land_acq,
+                            gift_reason: naScheme.gift_reason,
                             addition_land: naScheme.addition_land,
-                            land_purpose: naScheme.land_purpose,
                             past_appln_reject: naScheme.past_appln_reject,
                             agri_evidence_url: agri_evidence_url.data,
                             govt_evidence_url: govt_evidence_url.data,
                             land_site_plan_url: land_site_plan_url.data,
                             nakel_url_1_14: nakel_url_1_14.data,
-                            nakel_rr_14: nakel_rr_14.data,
                             signature_url: sign_url.data,
                             iagree: naScheme.iagree,
                             status: "ACTIVE",
+                            name_donee: naScheme.name_donee,
+                            address_donee: naScheme.address_donee,
+                            mobile_donee: naScheme.mobile_donee,
                         }
                     },
                 });
                 if (!data.status) {
                     toast.error(data.message, { theme: "light" });
                 } else {
-                    navigator(`/home/naview/${data.data.createNa.id}`);
+                    navigator(`/home/giftview/${data.data.createGift.id}`);
                 }
 
 
@@ -358,13 +369,13 @@ const Na: React.FC = (): JSX.Element => {
     return (
         <>
             <div className="bg-white rounded-md shadow-lg p-4 my-4 w-full">
-                <h1 className="text-gray-800 text-3xl font-semibold text-center">Application for Conversion of Agriculture Land to Non Agriculture Land.</h1>
+                <h1 className="text-gray-800 text-3xl font-semibold text-center">Application for Gift of Land.</h1>
                 <div className="w-full flex gap-4 my-4">
                     <div className="grow bg-gray-700 h-[2px]"></div>
                     <div className="w-10 bg-gray-500 h-[3px]"></div>
                     <div className="grow bg-gray-700 h-[2px]"></div>
                 </div>
-                <p className="text-center font-semibold text-xl text-gray-800"> SUBJECT  :  Application for Conversion of Agriculture Land to Non Agriculture Land.</p>
+                <p className="text-center font-semibold text-xl text-gray-800"> SUBJECT  :  Application for Gift of Land.</p>
 
 
                 {/*--------------------- section 1 start here ------------------------- */}
@@ -429,85 +440,86 @@ const Na: React.FC = (): JSX.Element => {
 
                 {/*--------------------- section 1 end here ------------------------- */}
 
+
                 {/*--------------------- section 2 start here ------------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
-                    <p className="text-left font-semibold text-xl text-white"> 2. Applicant Details(s) </p>
+                    <p className="text-left font-semibold text-xl text-white"> 2. Donor Details(s) </p>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.1</span> Applicant Name
+                        <span className="mr-2">2.1</span> Donor Name
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
                             ref={nameRef}
-                            placeholder="Applicant Name"
+                            placeholder="Donor Name"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
                         />
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.2</span> Applicant address
+                        <span className="mr-2">2.2</span> Donor address
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
                             ref={addressRef}
-                            placeholder="Applicant address"
+                            placeholder="Donor address"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2 h-28 resize-none"
                         ></textarea>
                     </div>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.3</span> Applicant Contact Number
+                        <span className="mr-2">2.3</span> Donor Contact Number
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
                             ref={mobileRef}
-                            placeholder="Applicant Contact Number"
+                            placeholder="Donor Contact Number"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
                         />
                     </div>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.4</span> Applicant E-mail
+                        <span className="mr-2">2.4</span> Donor E-mail
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
                             ref={emailRef}
-                            placeholder="Applicant Email"
+                            placeholder="Donor Email"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
                         />
                     </div>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.5</span> Applicant UID
+                        <span className="mr-2">2.5</span> Donor UID
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
                             ref={user_uidRef}
-                            placeholder="Applicant UID"
+                            placeholder="Donor UID"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
                         />
                     </div>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.6</span> Applicant Occupation
+                        <span className="mr-2">2.6</span> Donor Occupation
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
                             ref={occupationRef}
-                            placeholder="Applicant Occupation"
+                            placeholder="Donor Occupation"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
                         />
                     </div>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.7</span> Whether the Applicant belongs to ST / SC Community
+                        <span className="mr-2">2.7</span> Whether the Donor belongs to ST / SC Community
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto flex gap-4">
                         {
@@ -532,7 +544,7 @@ const Na: React.FC = (): JSX.Element => {
 
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.8</span> Whether the Applicant is occupant Class I or Class II or a tenant or a Government lessee.
+                        <span className="mr-2">2.8</span> Whether the Donor is occupant Class I or Class II or a tenant or a Government lessee.
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <input
@@ -565,11 +577,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.2</span> Whether the land is situated or
-                        (a) is municipal area;
-                        (b) in City Surveyed area
-                        (c) in or near a cantonment area.
-                        (d) Near a Air-Port or a Railway station or a Railway line or Jail or prison or local pulbic office or cermation or burial ground. If so , its approximate distance therefrom.
+                        <span className="mr-2">3.2</span> Whether the land is situated by/or adjoining to road, nalla, creek, bank of river, etc. If so, also mention its approximate distance(s)
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
@@ -593,7 +601,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.4</span> Is there any road from where the land is easily accessible ? State the name of the road, and whether it is Highway, Major district road or village road. What is the distance or the proposed building or other workds from the center of the road.
+                        <span className="mr-2">3.4</span> Is there any road from where the land is easily accessible ? If there is no road adjoining the land how is it proposed to provide for access to the site?
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
@@ -605,11 +613,11 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.5</span> Is there is no road adjoining the land how is it proposed to provide for access to the site?
+                        <span className="mr-2">3.5</span> Is the land under acquisition if so, state details
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
-                            ref={road_adjoinRef}
+                            ref={land_acqRef}
                             placeholder="Fill Details"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2 h-28 resize-none"
                         ></textarea>
@@ -617,11 +625,11 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.6</span> Reason for N.A. use of the proposed land, and its genuineness
+                        <span className="mr-2">3.6</span> Reason for Sell of the proposed land, and its genuineness
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
-                            ref={na_reasonRef}
+                            ref={gift_reasonRef}
                             placeholder="Fill Details"
                             className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2 h-28 resize-none"
                         ></textarea>
@@ -629,7 +637,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.7</span> Whether the applicant has any other land besides the land proposed for N.A. use
+                        <span className="mr-2">3.7</span> Whether the Donor has any other land besides the land proposed for sell
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto">
                         <textarea
@@ -651,33 +659,57 @@ const Na: React.FC = (): JSX.Element => {
                         ></textarea>
                     </div>
                 </div>
+
+                {/*--------------------- section 3 end here ------------------------- */}
+
+
+                {/*--------------------- section 4 start here ------------------------- */}
+
+
+
+                <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
+                    <p className="text-left font-semibold text-xl text-white"> 4. Donee Details(s) </p>
+                </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.9</span> Specify Non Agricultural purpose use of land
+                        <span className="mr-2">4.1</span> Donee Name
                     </div>
-                    <div className="flex-none lg:flex-1 w-full lg:w-auto flex gap-4">
-                        {
-                            typeOfNARef.slice(1).map((val: string, index: number) => {
-                                return (
-                                    <div
-                                        key={index}
-                                        className="flex gap-2 items-center cursor-pointer"
-                                        onClick={() => {
-                                            setTypeOfNA((value) => val);
-                                        }}>
-                                        <input type="checkbox" className="scale-110" checked={typeOfNA === val}
-                                            onChange={() => { }}
-                                        />
-                                        <p className="text-left text-lg font-normal">{val}</p>
-                                    </div>
-                                );
-                            })
-                        }
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto">
+                        <input
+                            ref={dnameRef}
+                            placeholder="Donee Name"
+                            className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
+                        />
                     </div>
                 </div>
+                <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
+                        <span className="mr-2">4.2</span> Donee address
+                    </div>
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto">
+                        <textarea
+                            ref={daddressRef}
+                            placeholder="Donee address"
+                            className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2 h-28 resize-none"
+                        ></textarea>
+                    </div>
+                </div>
+                <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
+                        <span className="mr-2">4.3</span> Donee Contact Number
+                    </div>
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto">
+                        <input
+                            ref={dmobileRef}
+                            placeholder="Donee Contact Number"
+                            className=" w-full border-2 border-gray-600 bg-transparent outline-none fill-none text-slate-800 p-2"
+                        />
+                    </div>
+                </div>
+
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.10</span> Whether the proposed Applicant(s) is / are an agriculturist(s), if so, submit documentary evidences supporting the claim
+                        <span className="mr-2">4.4</span> Whether the proposed Donee(s) is / are an agriculturist(s), if so, submit documentary evidences supporting the claim
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -708,7 +740,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.11</span> Whether the proposed Applicant is a Govt. Servant, NOC / Permission for acquiring the property from the Competent Authority, if so, submit documentary evidences supporting the claim
+                        <span className="mr-2">4.5</span> Whether the proposed Donee is a Govt. Servant, NOC / Permission for acquiring the property from the Competent Authority, if so, submit documentary evidences supporting the claim
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -738,16 +770,17 @@ const Na: React.FC = (): JSX.Element => {
                     </div>
                 </div>
 
-                {/*--------------------- section 3 end here ------------------------- */}
 
-                {/*--------------------- section 4 start here ------------------------- */}
+                {/*--------------------- section 4 end here ------------------------- */}
+
+                {/*--------------------- section 5 start here ----------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
-                    <p className="text-left font-semibold text-xl text-white"> 4. Document Attachment </p>
+                    <p className="text-left font-semibold text-xl text-white"> 5. Document Attachment </p>
                 </div>
 
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.1</span> Form No. I & XIV
+                        <span className="mr-2">5.1</span> Form No. I & XIV
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -778,7 +811,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.2</span> Land Site Plan
+                        <span className="mr-2">5.2</span> Land Site Plan
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -807,49 +840,18 @@ const Na: React.FC = (): JSX.Element => {
                         }
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
-                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.3</span> RR Nakal
-                        <p className="text-rose-500 text-sm">
-                            ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
-                    </div>
-                    <div className="flex-none flex gap-4 lg:flex-1 w-full lg:w-auto">
-                        <div className="hidden">
-                            <input type="file" ref={nakel_rr_14Ref} accept="*/*" onChange={(e) => handleLogoChange(e, setNakalrr)} />
-                        </div>
-                        <button
-                            onClick={() => nakel_rr_14Ref.current?.click()}
-                            className="py-1 w-full sm:w-auto text-white text-lg px-4 bg-green-500 text-center rounded-md font-medium"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Fa6SolidLink></Fa6SolidLink> {nakalrr == null ? "Attach Doc." : "Update Doc."}
-                            </div>
-                        </button>
-                        {
-                            nakalrr != null ?
-                                <a target="_blank" href={URL.createObjectURL(nakalrr)}
-                                    className="py-1 w-full sm:w-auto flex items-center gap-2  text-white text-lg px-4 bg-green-500 text-center rounded-md font-medium">
-                                    <Fa6SolidFileLines></Fa6SolidFileLines>
-                                    <p>
-                                        View Doc.
-                                    </p>
-                                </a>
-                                : null
-                        }
-                    </div>
-                </div>
-                {/*--------------------- section 4 end here ------------------------- */}
+                {/*--------------------- section 5 end here ------------------------- */}
 
 
-                {/*--------------------- section 5 start here ------------------------- */}
+                {/*--------------------- section 6 start here ------------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
                     <p className="text-left font-semibold text-xl text-white">
-                        5. Applicant / Occupant Declaration and Signature </p>
+                        6. Applicant / Occupant Declaration and Signature </p>
                 </div>
 
                 <div className="flex gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="text-xl font-normal text-left text-gray-700 ">
-                        5.1
+                        6.1
                     </div>
                     <div className="flex items-start">
                         <input type="checkbox" className="mr-2 my-2" checked={isChecked}
@@ -861,7 +863,7 @@ const Na: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">5.2</span> Applicant Signature Image
+                        <span className="mr-2">6.2</span> Applicant Signature Image
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -890,7 +892,7 @@ const Na: React.FC = (): JSX.Element => {
                         }
                     </div>
                 </div>
-                {/*--------------------- section 5 end here ------------------------- */}
+                {/*--------------------- section 6 end here ------------------------- */}
                 <div className="flex flex-wrap gap-6 mt-4">
                     <Link to={"/home/"}
                         className="py-1 w-full sm:w-auto text-white text-lg px-4 bg-rose-500 text-center rounded-md font-medium"
@@ -909,4 +911,4 @@ const Na: React.FC = (): JSX.Element => {
     );
 }
 
-export default Na;
+export default Gift;

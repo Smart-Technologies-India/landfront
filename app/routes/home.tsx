@@ -80,19 +80,6 @@ const Home: React.FC = (): JSX.Element => {
                                 />
                             </div>
                             <div className="flex flex-col grow">
-                                {/* <Link
-                                    to={"/home/"}
-                                    onClick={() => {
-                                        achangeindex(SideBarTabs.Dashborad);
-                                        changeMobile(false);
-                                    }}
-                                >
-                                    <SidebarTab
-                                        icon={Fa6SolidObjectUngroup}
-                                        title="Dashboard"
-                                        active={asideindex === SideBarTabs.Dashborad}
-                                    ></SidebarTab>
-                                </Link> */}
                                 {isUser ? (
                                     <>
                                         <Link
@@ -152,45 +139,69 @@ const Home: React.FC = (): JSX.Element => {
                                         </Link>
                                         <div className="w-full h-[2px] bg-gray-800 my-3"></div>
                                         <p className="text-left px-2 font-serif text-sm my-2 text-gray-600 w-full">Citizen Files</p>
-                                        {user.role == "SHO" ? null :
-                                            <Link
-                                                to={"/home/vmarriage"}
-                                                onClick={() => {
-                                                    achangeindex(SideBarTabs.Marriage);
-                                                    changeMobile(false);
-                                                }}
-                                            >
-                                                <SidebarTab
-                                                    icon={MaterialSymbolsActivityZone}
-                                                    title="Marriage"
-                                                    active={asideindex === SideBarTabs.Marriage}
-                                                ></SidebarTab>
-                                            </Link>
-                                        }
                                         <Link
-                                            to={"/home/vroadshow"}
+                                            to={"/home/vna"}
                                             onClick={() => {
-                                                achangeindex(SideBarTabs.Roadshow);
+                                                achangeindex(SideBarTabs.NA);
+                                                changeMobile(false);
+                                            }}
+                                        >
+                                            <SidebarTab
+                                                icon={MaterialSymbolsActivityZone}
+                                                title="NA Application"
+                                                active={asideindex === SideBarTabs.NA}
+                                            ></SidebarTab>
+                                        </Link>
+                                        <Link
+                                            to={"/home/vsale"}
+                                            onClick={() => {
+                                                achangeindex(SideBarTabs.Sale);
                                                 changeMobile(false);
                                             }}
                                         >
                                             <SidebarTab
                                                 icon={MaterialSymbolsAlignHorizontalRight}
-                                                title="Roadshow"
-                                                active={asideindex === SideBarTabs.Roadshow}
+                                                title="Sale Applicaton"
+                                                active={asideindex === SideBarTabs.Sale}
                                             ></SidebarTab>
                                         </Link>
                                         <Link
-                                            to={"/home/vreligious"}
+                                            to={"/home/vgift"}
                                             onClick={() => {
-                                                achangeindex(SideBarTabs.Religious);
+                                                achangeindex(SideBarTabs.Gift);
                                                 changeMobile(false);
                                             }}
                                         >
                                             <SidebarTab
                                                 icon={MaterialSymbolsOralDisease}
-                                                title="Religious"
-                                                active={asideindex === SideBarTabs.Religious}
+                                                title="Gift Appllication"
+                                                active={asideindex === SideBarTabs.Gift}
+                                            ></SidebarTab>
+                                        </Link>
+                                        <Link
+                                            to={"/home/vsd"}
+                                            onClick={() => {
+                                                achangeindex(SideBarTabs.SD);
+                                                changeMobile(false);
+                                            }}
+                                        >
+                                            <SidebarTab
+                                                icon={MaterialSymbolsOralDisease}
+                                                title="Sub Division"
+                                                active={asideindex === SideBarTabs.SD}
+                                            ></SidebarTab>
+                                        </Link>
+                                        <Link
+                                            to={"/home/vpartication"}
+                                            onClick={() => {
+                                                achangeindex(SideBarTabs.Partication);
+                                                changeMobile(false);
+                                            }}
+                                        >
+                                            <SidebarTab
+                                                icon={MaterialSymbolsOralDisease}
+                                                title="Partication"
+                                                active={asideindex === SideBarTabs.Partication}
                                             ></SidebarTab>
                                         </Link>
                                         <div className="w-full h-[2px] bg-gray-800 my-3"></div>

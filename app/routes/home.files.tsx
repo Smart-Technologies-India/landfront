@@ -146,12 +146,12 @@ const Dashboard: React.FC = (): JSX.Element => {
 
     const getViewLink = (value: string, id: number): string => {
 
-        if (value == "MARRIAGE") {
-            return `/home/marriageview/${id}`;
-        } else if (value == "RELIGIOUS") {
-            return `/home/religiousview/${id}`;
-        } else if (value == "ROADSHOW") {
-            return `/home/roadshowview/${id}`;
+        if (value == "NA") {
+            return `/home/naview/${id}`;
+        } else if (value == "SALE") {
+            return `/home/saleview/${id}`;
+        } else if (value == "GIFT") {
+            return `/home/giftview/${id}`;
         } else if (value == "GENERIC") {
             return `/home/genericview/${id}`;
         } else {

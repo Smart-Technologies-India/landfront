@@ -13,8 +13,8 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
     const cookie: any = await userPrefs.parse(cookieHeader);
     const data = await ApiCall({
         query: `
-        query getNaById($id:Int!){
-            getNaById(id:$id){
+        query getGiftById($id:Int!){
+            getGiftById(id:$id){
               id,
               name,
               address,
@@ -32,27 +32,29 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
               land_situate,
               electric,
               road_access,
-              road_adjoin,
-              na_reason,
+              land_acq,
+              gift_reason,
               addition_land,
               past_appln_reject,
               agri_evidence_url,
               govt_evidence_url,
-              land_purpose,
               land_site_plan_url,
               nakel_url_1_14,
-              nakel_rr_14,
               remarks,
               iagree,
-              signature_url
+              signature_url,
+              name_donee,
+              address_donee,
+              mobile_donee
             }
           }
       `,
         veriables: {
             id: parseInt(id!),
-            form_type: "NA"
+            form_type: "GIFT"
         },
     });
+
 
     const submit = await ApiCall({
         query: `
@@ -76,7 +78,7 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
         veriables: {
             "searchCommonInput": {
                 "form_id": parseInt(id!),
-                form_type: "NA"
+                form_type: "GIFT"
             }
         },
     });
@@ -91,7 +93,7 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
           }
       `,
         veriables: {
-            id: parseInt(data.data.getNaById.village_id)
+            id: parseInt(data.data.getGiftById.village_id)
         },
     });
 
@@ -108,8 +110,8 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
       `,
         veriables: {
             searchSurveyInput: {
-                villageId: parseInt(data.data.getNaById.village_id),
-                survey_no: data.data.getNaById.survey_no,
+                villageId: parseInt(data.data.getGiftById.village_id),
+                survey_no: data.data.getGiftById.survey_no,
             }
         },
     });
@@ -117,17 +119,16 @@ export const loader: LoaderFunction = async (props: LoaderArgs) => {
 
     return json({
         user: cookie,
-        from_data: data.data.getNaById,
+        from_data: data.data.getGiftById,
         submit: submit.status,
         village: village.data.getVillageById,
         subdivision: subdivision.data.getSubDivision,
         common: submit.data.searchCommon
     });
-
 };
 
 
-const NAView: React.FC = (): JSX.Element => {
+const GiftView: React.FC = (): JSX.Element => {
     const loader = useLoaderData();
     const user = loader.user;
     const villagedata = loader.village;
@@ -138,11 +139,6 @@ const NAView: React.FC = (): JSX.Element => {
     const isUser = user.role == "USER";
 
     const common = isSubmited ? loader.common[0] : null;
-
-
-
-
-
 
     interface landDetailsType {
         land: string | null;
@@ -186,10 +182,6 @@ const NAView: React.FC = (): JSX.Element => {
                 createCommonInput: {
                     "form_id": Number(from_data.id),
                     "user_id": Number(user.id),
-                    // "auth_user_id": "5",
-                    // "focal_user_id": "5",
-                    // "intra_user_id": "3,4",
-                    // "inter_user_id": "0",
                     "auth_user_id": "5",
                     "focal_user_id": "5",
                     "intra_user_id": "5,6",
@@ -197,9 +189,8 @@ const NAView: React.FC = (): JSX.Element => {
                     "village": villagedata.name,
                     "name": from_data.name,
                     "number": from_data.mobile.toString(),
-                    // "form_status": 1,
                     "form_status": 1,
-                    "form_type": "NA",
+                    "form_type": "GIFT",
                     "query_status": "SUBMIT"
                 }
             },
@@ -232,7 +223,7 @@ const NAView: React.FC = (): JSX.Element => {
     const submitQuery = async () => {
         if (queryRef.current?.value == null || queryRef.current?.value == "") return toast.error("Remark is required", { theme: "light" });
         const req: { [key: string]: any } = {
-            "stage": "NA",
+            "stage": "GIFT",
             "form_id": from_data.id,
             "from_user_id": Number(user.id),
             "to_user_id": from_data.userId,
@@ -303,7 +294,7 @@ const NAView: React.FC = (): JSX.Element => {
     const forwardQuery = async (args: forwardqueryType) => {
         if (forwardRef.current?.value == null || forwardRef.current?.value == "") return toast.error("Remark is required", { theme: "light" });
         const req: { [key: string]: any } = {
-            "stage": "NA",
+            "stage": "GIFT",
             "form_id": from_data.id,
             "from_user_id": Number(user.id),
             "to_user_id": args.touserid,
@@ -402,7 +393,7 @@ const NAView: React.FC = (): JSX.Element => {
             veriables: {
                 searchQueryInput: {
                     form_id: from_data.id,
-                    stage: "NA",
+                    stage: "GIFT",
                     query_type: isUser ? "PUBLIC" : "INTRA"
                 }
             },
@@ -578,13 +569,13 @@ const NAView: React.FC = (): JSX.Element => {
             </div>
             {/* forward box end here */}
             <div className="bg-white rounded-md shadow-lg p-4 my-4 w-full">
-                <h1 className="text-gray-800 text-3xl font-semibold text-center">Application for Conversion of Agriculture Land to Non Agriculture Land.</h1>
+                <h1 className="text-gray-800 text-3xl font-semibold text-center">Application for Gift of Land.</h1>
                 <div className="w-full flex gap-4 my-4">
                     <div className="grow bg-gray-700 h-[2px]"></div>
                     <div className="w-10 bg-gray-500 h-[3px]"></div>
                     <div className="grow bg-gray-700 h-[2px]"></div>
                 </div>
-                <p className="text-center font-semibold text-xl text-gray-800"> SUBJECT  :  Application for Conversion of Agriculture Land to Non Agriculture Land.</p>
+                <p className="text-center font-semibold text-xl text-gray-800"> SUBJECT  :  Application for Gift of Land.</p>
 
 
                 {/*--------------------- section 1 start here ------------------------- */}
@@ -636,11 +627,11 @@ const NAView: React.FC = (): JSX.Element => {
 
                 {/*--------------------- section 2 start here ------------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
-                    <p className="text-left font-semibold text-xl text-white"> 2. Applicant Details(s) </p>
+                    <p className="text-left font-semibold text-xl text-white"> 2. Donor Details(s) </p>
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.1</span> Applicant Name
+                        <span className="mr-2">2.1</span> Donor Name
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.name}
@@ -648,7 +639,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.2</span> Applicant address
+                        <span className="mr-2">2.2</span> Donor address
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.address}
@@ -656,7 +647,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.3</span> Applicant Contact Number
+                        <span className="mr-2">2.3</span> Donor Contact Number
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.mobile}
@@ -664,7 +655,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.4</span> Applicant E-mail
+                        <span className="mr-2">2.4</span> Donor E-mail
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.email}
@@ -672,7 +663,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.5</span> Applicant UID
+                        <span className="mr-2">2.5</span> Donor UID
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.user_uid}
@@ -680,7 +671,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.6</span> Applicant Occupation
+                        <span className="mr-2">2.6</span> Donor Occupation
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.occupation}
@@ -688,7 +679,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.7</span> Whether the Applicant belongs to ST / SC Community
+                        <span className="mr-2">2.7</span> Whether the Donor belongs to ST / SC Community
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.scst}
@@ -696,7 +687,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">2.8</span> Whether the Applicant is occupant Class I or Class II or a tenant or a Government lessee.
+                        <span className="mr-2">2.8</span> Whether the Donor is occupant Class I or Class II or a tenant or a Government lessee.
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.govt_employee}
@@ -721,11 +712,7 @@ const NAView: React.FC = (): JSX.Element => {
 
                 <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
-                        <span className="mr-2">3.2</span> Whether the land is situated or
-                        (a) is municipal area;
-                        (b) in City Surveyed area
-                        (c) in or near a cantonment area.
-                        (d) Near a Air-Port or a Railway station or a Railway line or Jail or prison or local pulbic office or cermation or burial ground. If so , its approximate distance therefrom.
+                        <span className="mr-2">3.2</span> Whether the land is situated by/or adjoining to road, nalla, creek, bank of river, etc. If so, also mention its approximate distance(s)
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.land_situate}
@@ -741,7 +728,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.4</span> Is there any road from where the land is easily accessible ? State the name of the road, and whether it is Highway, Major district road or village road. What is the distance or the proposed building or other workds from the center of the road.
+                        <span className="mr-2">3.4</span> Is there any road from where the land is easily accessible ? If there is no road adjoining the land how is it proposed to provide for access to the site?
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.road_access}
@@ -749,23 +736,23 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.5</span> Is there is no road adjoining the land how is it proposed to provide for access to the site?
+                        <span className="mr-2">3.5</span> Is the land under acquisition if so, state details
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
-                        {from_data.road_adjoin}
+                        {from_data.land_acq}
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.6</span> Reason for N.A. use of the proposed land, and its genuineness
+                        <span className="mr-2">3.6</span> Reason for Sell of the proposed land, and its genuineness
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
-                        {from_data.na_reason}
+                        {from_data.gift_reason}
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.7</span> Whether the applicant has any other land besides the land proposed for N.A. use
+                        <span className="mr-2">3.7</span>  Whether the seller has any other land besides the land proposed for sell
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
                         {from_data.addition_land}
@@ -779,17 +766,43 @@ const NAView: React.FC = (): JSX.Element => {
                         {from_data.past_appln_reject}
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
-                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.9</span> Non Agricultural purpose use of land
+
+
+
+                {/*--------------------- section 3 end here ------------------------- */}
+
+                {/*--------------------- section 4 start here ------------------------- */}
+                <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
+                    <p className="text-left font-semibold text-xl text-white"> 4. Donee Details(s) </p>
+                </div>
+                <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
+                        <span className="mr-2">4.1</span> Donee Name
                     </div>
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
-                        {from_data.typeOfNA}
+                        {from_data.name_donee}
                     </div>
                 </div>
+                <div className="flex flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
+                        <span className="mr-2">4.2</span> Donee address
+                    </div>
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
+                        {from_data.address_donee}
+                    </div>
+                </div>
+                <div className="flex  flex-wrap gap-4 gap-y-2 px-4 py-2 my-2">
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700 ">
+                        <span className="mr-2">4.3</span> Donee Contact Number
+                    </div>
+                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal">
+                        {from_data.mobile_donee}
+                    </div>
+                </div>
+
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.10</span> Whether the proposed Applicant(s) is / are an agriculturist(s), if so, submit documentary evidences supporting the claim
+                        <span className="mr-2">4.4</span> Whether the proposed Applicant(s) is / are an agriculturist(s), if so, submit documentary evidences supporting the claim
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -806,7 +819,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">3.11</span> Whether the proposed Applicant is a Govt. Servant, NOC / Permission for acquiring the property from the Competent Authority, if so, submit documentary evidences supporting the claim
+                        <span className="mr-2">4.5</span> Whether the proposed Applicant is a Govt. Servant, NOC / Permission for acquiring the property from the Competent Authority, if so, submit documentary evidences supporting the claim
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -821,17 +834,17 @@ const NAView: React.FC = (): JSX.Element => {
                         </a>
                     </div>
                 </div>
+                {/*--------------------- section 4 end here ------------------------- */}
 
-                {/*--------------------- section 3 end here ------------------------- */}
 
-                {/*--------------------- section 4 start here ------------------------- */}
+                {/*--------------------- section 5 start here ------------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
-                    <p className="text-left font-semibold text-xl text-white"> 4. Document Attachment </p>
+                    <p className="text-left font-semibold text-xl text-white"> 5. Document Attachment </p>
                 </div>
 
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.1</span> Form No. I & XIV
+                        <span className="mr-2">5.1</span> Form No. I & XIV
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -848,7 +861,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.2</span> Land Site Plan
+                        <span className="mr-2">5.2</span> Land Site Plan
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -863,35 +876,18 @@ const NAView: React.FC = (): JSX.Element => {
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
-                    <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">4.3</span> RR Nakal
-                        <p className="text-rose-500 text-sm">
-                            ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
-                    </div>
-                    <div className="flex-none flex gap-4 lg:flex-1 w-full lg:w-auto">
-                        <a target="_blank"
-                            href={from_data.nakel_rr_14}
-                            className="py-1 w-full sm:w-auto text-white text-lg px-4 bg-green-500 text-center rounded-md font-medium"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Fa6SolidLink></Fa6SolidLink> View Doc.
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                {/*--------------------- section 4 end here ------------------------- */}
+                {/*--------------------- section 5 end here ------------------------- */}
 
 
-                {/*--------------------- section 5 start here ------------------------- */}
+                {/*--------------------- section 6 start here ------------------------- */}
                 <div className="w-full bg-indigo-500 py-2 rounded-md px-4 mt-4">
                     <p className="text-left font-semibold text-xl text-white">
-                        5. Applicant / Occupant Declaration and Signature </p>
+                        6. Applicant / Occupant Declaration and Signature </p>
                 </div>
 
                 <div className="flex gap-4 gap-y-2 px-4 py-2 my-2">
                     <div className="text-xl font-normal text-left text-gray-700 ">
-                        5.1
+                        6.1
                     </div>
                     <div className="flex items-start">
                         <p className="text-xl font-normal text-left text-gray-700 pr-2">{from_data.iagree}</p>
@@ -902,7 +898,7 @@ const NAView: React.FC = (): JSX.Element => {
                 </div>
                 <div className="flex flex-wrap gap-4 gap-y-2 items-center px-4 py-2 my-2">
                     <div className="flex-none lg:flex-1 w-full lg:w-auto text-xl font-normal text-left text-gray-700">
-                        <span className="mr-2">5.2</span> Applicant Signature Image
+                        <span className="mr-2">6.2</span> Applicant Signature Image
                         <p className="text-rose-500 text-sm">
                             ( Maximum Upload Size 2MB & Allowed Format JPG / PDF / PNG )</p>
                     </div>
@@ -917,7 +913,7 @@ const NAView: React.FC = (): JSX.Element => {
                         </a>
                     </div>
                 </div>
-                {/*--------------------- section 5 end here ------------------------- */}
+                {/*--------------------- section 6 end here ------------------------- */}
                 {isSubmited ?
                     user.id == from_data.userId ? null :
                         <>
@@ -1063,4 +1059,4 @@ const NAView: React.FC = (): JSX.Element => {
     );
 }
 
-export default NAView;
+export default GiftView;
